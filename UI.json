@@ -1,0 +1,33 @@
+{
+  "mainTitle": "快速CLI",
+  "configHeader": "当前配置详情:",
+  "providerLabel": "提供商",
+  "modelLabel": "模型",
+  "notConfigured": "未配置",
+  "menuItems": [
+    "🚀 启动CLI",
+    "⚙️ 提供商管理",
+    "🤖 模型管理",
+    "🚪 退出"
+  ],
+  "engineTitle": "选择引擎",
+  "launchTitle": "启动配置",
+  "launchOptions": [
+    "🚀 运行",
+    "🔄 切换提供商",
+    "🔄 切换模型",
+    " [←] 返回"
+  ],
+  "backLabel": "[←] 返回",
+  "manageProvidersTitle": "提供商管理",
+  "addProvider": "[+] 新增提供商",
+  "delProvider": "[-] 删除提供商",
+  "manageModelsTitle": "模型管理",
+  "addModel": "[+] 新增模型",
+  "delModel": "[-] 删除模型",
+  "navHint": "(↑↓：切换，Enter：确认，Esc：返回)",
+  "cancelledMsg": "[已取消]",
+  "launchingMsg": "正在启动:",
+  "exitMsg": "已退出。按回车键返回菜单...",
+  "errorMsg": "错误：请先添加模型！"
+}
