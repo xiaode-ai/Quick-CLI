@@ -1,11 +1,11 @@
-# Quicl CLI Manager (Aesthetic Polished Version)
+# Quick CLI Manager (Aesthetic Polished Version)
 # Centered titles and aligned config details.
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 chcp 65001 | Out-Null
 
-$configPath = "C:\Users\i-cgh\claude-config.json"
-$uiPath = "C:\Users\i-cgh\claude-ui.json"
+$configPath = Join-Path $PSScriptRoot "config.json"
+$uiPath = Join-Path $PSScriptRoot "UI.json"
 
 function Load-Config {
     if (Test-Path $configPath) { return Get-Content $configPath | ConvertFrom-Json }
@@ -21,7 +21,7 @@ function Load-UI {
         $raw = Get-Content $uiPath -Raw -Encoding UTF8
         return $raw | ConvertFrom-Json
     }
-    return @{ mainTitle = "Quicl CLI" }
+    return @{ mainTitle = "Quick CLI" }
 }
 
 $UI = Load-UI
@@ -178,7 +178,7 @@ function Manage-Models {
         $mList += $UI.delModel
         $mList += $UI.backLabel
 
-        $choice = Invoke-Menu "$($UI.manageModelsSubTitle) ($($p.name))" $mList
+        $choice = Invoke-Menu "$($UI.manageModelsTitle) ($($p.name))" $mList
         if ($choice -eq "ESC" -or $choice -eq ($mList.Count - 1)) { return }
 
         if ($choice -eq ($mList.Count - 3)) {
