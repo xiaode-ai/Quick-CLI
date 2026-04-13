@@ -267,9 +267,9 @@ while ($true) {
 
     switch ($choice) {
         0 { # Start CLI Flow
-            $tIdx = Invoke-Menu $UI.engineTitle @("Claude Code", "Codex CLI", $UI.backLabel)
-            if ($tIdx -eq "ESC" -or $tIdx -eq 2) { continue }
-            $tName = if ($tIdx -eq 0) { "Claude Code" } else { "Codex CLI" }
+            $tIdx = Invoke-Menu $UI.engineTitle ($config.tools + $UI.backLabel)
+            if ($tIdx -eq "ESC" -or $tIdx -ge $config.tools.Count) { continue }
+            $tName = $config.tools[$tIdx]
 
             while ($true) {
                 $config = Get-AppConfig
@@ -296,6 +296,30 @@ while ($true) {
                             
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             claude
+                        }
+                        elseif ($tName -like "*Gemini*") {
+                            # 注入 Gemini 官方及常见第三方工具所需的环境变量
+                            $env:GEMINI_API_KEY = $currP.apiKey
+                            $env:GOOGLE_API_KEY = $currP.apiKey
+                            $env:GEMINI_MODEL = $currM.id
+                            
+                            # 0-修改代理方案 (GCR): 自动重定向 API 请求到用户配置的 Base URL (如 OpenRouter)
+                            # 剥离最后的 /v1 或其他后缀，以符合各版本工具的 Base URL 规范
+                            $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
+                            $env:GOOGLE_GEMINI_BASE_URL = $cleanUrl
+                            $env:GOOGLE_VERTEX_BASE_URL = $cleanUrl
+                            $env:CODE_ASSIST_ENDPOINT = $cleanUrl
+                            # 额外增加通用端点环境变量以增强兼容性
+                            $env:GENERATIVE_AI_ENDPOINT = $cleanUrl
+                            
+                            # 强制跳过身份验证提示及项目 ID 检查 (GCR 优化)
+                            $env:GOOGLE_CLOUD_PROJECT = "quick-cli-dummy"
+                            $env:GOOGLE_CLOUD_PROJECT_ID = "quick-cli-dummy"
+                            $env:GEMINI_CLI_FORCE_AUTH_METHOD = "api-key"
+                            $env:GOOGLE_GENAI_USE_VERTEXAI = "false"
+                            
+                            Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
+                            gemini
                         }
                         else {
                             $codexTmpHome = Join-Path $HOME ".codex_custom_api"
