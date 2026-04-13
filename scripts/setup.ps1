@@ -1,5 +1,6 @@
 # Quick-CLI Setup Assistant
 # Sets up aliases and checks dependencies.
+# Located in: scripts/setup.ps1
 
 Write-Host "--- Quick-CLI Setup Assistant ---" -ForegroundColor Cyan
 
@@ -15,20 +16,22 @@ foreach ($dep in $dependencies) {
 
 # 2. Add to PATH (Permanent - Windows Only)
 if ($IsWindows) {
+    # Add the SCRIPTS folder to PATH, not the root
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     if ($currentPath -notlike "*$PSScriptRoot*") {
         $newPath = "$currentPath;$PSScriptRoot"
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-        Write-Host "[DONE] Added location to your User PATH." -ForegroundColor Green
+        Write-Host "[DONE] Added 'scripts' folder to your User PATH." -ForegroundColor Green
     } else {
-        Write-Host "[OK] Location is already in your PATH." -ForegroundColor Gray
+        Write-Host "[OK] 'scripts' folder is already in your PATH." -ForegroundColor Gray
     }
 } else {
     Write-Host "[NOTE] Automatic PATH modification is skipped on Linux/macOS. Please use the 'qc' alias." -ForegroundColor Gray
 }
 
-# 3. Add Alias to Profile
-$scriptPath = Join-Path $PSScriptRoot "src\Script.ps1"
+# 3. Add Alias to Profile (Pointing to src/Script.ps1)
+$repoRoot = Split-Path $PSScriptRoot -Parent
+$scriptPath = Join-Path $repoRoot "src\Script.ps1"
 $aliasCmd = "`nfunction qc { & '$scriptPath' }`nfunction quick { & '$scriptPath' }`nfunction quick-cli { & '$scriptPath' }"
 
 if (Test-Path $PROFILE) {

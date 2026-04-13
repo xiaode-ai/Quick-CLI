@@ -12,7 +12,7 @@ $parentDir = Split-Path $PSScriptRoot -Parent
 $configPath = Join-Path $parentDir "config.json"
 $uiPath = Join-Path $PSScriptRoot "UI.json"
 
-function Load-Config {
+function Get-AppConfig {
     if (Test-Path $configPath) { return Get-Content $configPath | ConvertFrom-Json }
     return $null
 }
@@ -21,7 +21,7 @@ function Save-Config($config) {
     $config | ConvertTo-Json -Depth 10 | Out-File $configPath -Encoding utf8
 }
 
-function Load-UI {
+function Get-AppUI {
     if (Test-Path $uiPath) {
         $raw = Get-Content $uiPath -Raw -Encoding UTF8
         return $raw | ConvertFrom-Json
@@ -29,7 +29,7 @@ function Load-UI {
     return @{ mainTitle = "Quick CLI" }
 }
 
-$UI = Load-UI
+$UI = Get-AppUI
 
 # --- TUI Engine ---
 
@@ -126,9 +126,9 @@ function Read-StringWithCancel {
 
 # --- Pages ---
 
-function Manage-Providers {
+function Show-ProviderMenu {
     do {
-        $config = Load-Config
+        $config = Get-AppConfig
         $list = @()
         foreach ($p in $config.providers) { $list += "$($p.name) (" + $p.baseUrl + ")" }
         $list += $UI.addProvider
@@ -164,8 +164,8 @@ function Manage-Providers {
     } until ($false)
 }
 
-function Manage-Models {
-    $config = Load-Config
+function Show-ModelMenu {
+    $config = Get-AppConfig
     $list = @()
     foreach ($p in $config.providers) { $list += $p.name }
     $list += $UI.backLabel
@@ -174,7 +174,7 @@ function Manage-Models {
     if ($pIdx -eq "ESC" -or $pIdx -eq ($list.Count - 1)) { return }
 
     do {
-        $config = Load-Config
+        $config = Get-AppConfig
         $p = $config.providers[$pIdx]
         $mList = @()
         foreach ($m in $p.models) { $mList += "$($m.name) ($($m.id))" }
@@ -211,7 +211,7 @@ function Manage-Models {
 # --- Main ---
 
 do {
-    $config = Load-Config
+    $config = Get-AppConfig
     if ($config.providers.Count -eq 0) {
         $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = $true; useAuthToken = $false }
         Save-Config $config
@@ -228,7 +228,7 @@ do {
             $tName = if ($tIdx -eq 0) { "Claude Code" } else { "Codex CLI" }
 
             do {
-                $config = Load-Config
+                $config = Get-AppConfig
                 $pIdx = [math]::Min($config.current.providerIndex, $config.providers.Count - 1)
                 $currP = $config.providers[$pIdx]
                 $mIdx = [math]::Min($config.current.modelIndex, [math]::Max(0, $currP.models.Count - 1))
@@ -282,7 +282,7 @@ do {
                 }
             } until ($false)
         }
-        1 { Manage-Providers }
-        2 { Manage-Models }
+        1 { Show-ProviderMenu }
+        2 { Show-ModelMenu }
     }
 } until ($false)

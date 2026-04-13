@@ -36,7 +36,7 @@ try {
 # 3. Trigger Local Setup
 if (Test-Path (Join-Path $installDir "setup.ps1")) {
     Set-Location $installDir
-    .\setup.ps1
+    .\scripts\setup.ps1
 }
 
 Write-Host "`nSuccessfully installed to $installDir" -ForegroundColor Green
