@@ -278,7 +278,9 @@ while ($true) {
                         if ($currM.id -eq "none") { Write-Host "`n$($UI.errorMsg)" -ForegroundColor Red; Read-Host; continue }
                         Write-Host "`n$($UI.launchingMsg) $tName..." -ForegroundColor Yellow
                         if ($tName -like "*Claude*") {
-                            $env:ANTHROPIC_BASE_URL = $currP.baseUrl; $env:ANTHROPIC_MODEL = $currM.id
+                            # Claude Code 使用 OpenRouter 时不能带 /v1，自动剥离后缀
+                            $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
+                            $env:ANTHROPIC_BASE_URL = $cleanUrl; $env:ANTHROPIC_MODEL = $currM.id
                             if ($currP.useAuthToken) { $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_AUTH_TOKEN = $currP.apiKey } else { $env:ANTHROPIC_API_KEY = $currP.apiKey; $env:ANTHROPIC_AUTH_TOKEN = "" }
                             $env:CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS = if ($currP.disableBetas) { "true" } else { "false" }
                             claude
@@ -295,7 +297,12 @@ while ($true) {
                     }
                     1 { # Switch Provider
                         $pList = @()
-                        foreach ($p in $config.providers) { $pList += $p.name }
+                        for ($i = 0; $i -lt $config.providers.Count; $i++) {
+                            $p = $config.providers[$i]
+                            $name = $p.name
+                            if ($i -eq $config.current.providerIndex) { $name += $UI.currentTag }
+                            $pList += $name
+                        }
                         $pIdxS = Invoke-Menu $UI.providerLabel ($pList + $UI.backLabel)
                         if ($pIdxS -ne "ESC" -and $pIdxS -lt $pList.Count) {
                             $config.current.providerIndex = $pIdxS
@@ -305,7 +312,12 @@ while ($true) {
                     }
                     2 { # Switch Model
                         $mList = @()
-                        foreach ($m in $currP.models) { $mList += $m.name }
+                        for ($i = 0; $i -lt $currP.models.Count; $i++) {
+                            $m = $currP.models[$i]
+                            $name = $m.name
+                            if ($i -eq $config.current.modelIndex) { $name += $UI.currentTag }
+                            $mList += $name
+                        }
                         $mIdxS = Invoke-Menu "$($UI.modelLabel) ($($currP.name))" ($mList + $UI.backLabel)
                         if ($mIdxS -ne "ESC" -and $mIdxS -lt $mList.Count) {
                             $config.current.modelIndex = $mIdxS

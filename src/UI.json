@@ -16,9 +16,9 @@
     "🚀 运行",
     "🔄 切换提供商",
     "🔄 切换模型",
-    " [←] 返回"
+    "↩️ 返回"
   ],
-  "backLabel": "[←] 返回",
+  "backLabel": "↩️ 返回",
   "manageProvidersTitle": "提供商管理",
   "addProvider": "[+] 新增提供商",
   "delProvider": "[-] 删除提供商",
@@ -33,5 +33,6 @@
   "selectProviderPrompt": "选择所属提供商",
   "modelNamePrompt": "模型名称: ",
   "modelIdPrompt": "模型 ID (如 gpt-4o): ",
-  "deleteModelIndexPrompt": "输入要删除的模型序号"
+  "deleteModelIndexPrompt": "输入要删除的模型序号",
+  "currentTag": " [默认]"
 }
