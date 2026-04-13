@@ -13,18 +13,22 @@ foreach ($dep in $dependencies) {
     }
 }
 
-# 2. Add to PATH (Permanent)
-$currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
-if ($currentPath -notlike "*$PSScriptRoot*") {
-    $newPath = "$currentPath;$PSScriptRoot"
-    [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-    Write-Host "[DONE] Added location to your User PATH." -ForegroundColor Green
+# 2. Add to PATH (Permanent - Windows Only)
+if ($IsWindows) {
+    $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($currentPath -notlike "*$PSScriptRoot*") {
+        $newPath = "$currentPath;$PSScriptRoot"
+        [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+        Write-Host "[DONE] Added location to your User PATH." -ForegroundColor Green
+    } else {
+        Write-Host "[OK] Location is already in your PATH." -ForegroundColor Gray
+    }
 } else {
-    Write-Host "[OK] Location is already in your PATH." -ForegroundColor Gray
+    Write-Host "[NOTE] Automatic PATH modification is skipped on Linux/macOS. Please use the 'qc' alias." -ForegroundColor Gray
 }
 
 # 3. Add Alias to Profile
-$scriptPath = Join-Path $PSScriptRoot "Script.ps1"
+$scriptPath = Join-Path $PSScriptRoot "src\Script.ps1"
 $aliasCmd = "`nfunction qc { & '$scriptPath' }`nfunction quick { & '$scriptPath' }`nfunction quick-cli { & '$scriptPath' }"
 
 if (Test-Path $PROFILE) {
