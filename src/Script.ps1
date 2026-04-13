@@ -263,7 +263,7 @@ while ($true) {
     
     $choice = Invoke-Menu $UI.mainTitle $UI.menuItems
 
-    if ($choice -eq "ESC" -or $choice -eq 3) { break }
+    if ($choice -eq "ESC" -or $choice -eq ($UI.menuItems.Count - 1)) { break }
 
     switch ($choice) {
         0 { # Start CLI Flow
@@ -340,9 +340,8 @@ while ($true) {
         1 { Show-ProviderMenu }
         2 { Show-ModelMenu }
         3 { # Language Selection
-            $langs = @("zh-cn", "en-us")
-            $langNames = @("简体中文 (Chinese)", "English")
-            $lIdx = Invoke-Menu $UI.selectLanguagePrompt ($langNames + $UI.backLabel)
+            $langs = @("en-us", "zh-cn")
+            $lIdx = Invoke-Menu $UI.selectLanguagePrompt ($UI.langList + $UI.backLabel)
             if ($lIdx -ne "ESC" -and $lIdx -lt $langs.Count) {
                 $config.current.language = $langs[$lIdx]
                 Save-Config $config

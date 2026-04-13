@@ -36,5 +36,6 @@
   "modelIdPrompt": "模型 ID: ",
   "deleteModelIndexPrompt": "输入要删除的模型序号",
   "currentTag": " [默认]",
-  "selectLanguagePrompt": "选择语言"
+  "selectLanguagePrompt": "选择语言",
+  "langList": ["English", "简体中文"]
 }

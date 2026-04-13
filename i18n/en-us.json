@@ -36,5 +36,6 @@
   "modelIdPrompt": "Model ID: ",
   "deleteModelIndexPrompt": "Enter the index of the model to delete",
   "currentTag": " [Default]",
-  "selectLanguagePrompt": "Select Language"
+  "selectLanguagePrompt": "Select Language",
+  "langList": ["English", "简体中文"]
 }
