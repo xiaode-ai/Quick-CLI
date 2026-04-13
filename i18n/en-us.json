@@ -19,7 +19,7 @@
     "🔄 Switch Model",
     "↩️ Back"
   ],
-  "backLabel": "↩️ Back",
+  "backLabel": "Back",
   "manageProvidersTitle": "Provider Management",
   "addProvider": "[+] Add Provider",
   "delProvider": "[-] Delete Provider",

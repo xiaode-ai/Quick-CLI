@@ -19,7 +19,7 @@
     "🔄 切换模型",
     "↩️ 返回"
   ],
-  "backLabel": "↩️ 返回",
+  "backLabel": "返回",
   "manageProvidersTitle": "提供商管理",
   "addProvider": "[+] 新增提供商",
   "delProvider": "[-] 删除提供商",
