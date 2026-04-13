@@ -50,7 +50,7 @@ function Invoke-Menu {
         $buffer = New-Object System.Text.StringBuilder
         [void]$buffer.AppendLine("==========================================")
         
-        # 1. 标题居中逻辑 (考虑中文字符可能占双位)
+        # 1. 鏍囬灞呬腑閫昏緫 (鑰冭檻涓枃瀛楃鍙兘鍗犲弻浣?
         $displayLength = 0
         foreach ($char in $Title.ToCharArray()) {
             if ([int]$char -gt 255) { $displayLength += 2 } else { $displayLength += 1 }
@@ -127,10 +127,12 @@ function Read-StringWithCancel {
 # --- Pages ---
 
 function Show-ProviderMenu {
-    do {
+    while ($true) {
         $config = Get-AppConfig
         $list = @()
-        foreach ($p in $config.providers) { $list += "$($p.name) (" + $p.baseUrl + ")" }
+        foreach ($p in $config.providers) {
+            $list += "$($p.name) (" + $p.baseUrl + ")"
+        }
         $list += $UI.addProvider
         $list += $UI.delProvider
         $list += $UI.backLabel
@@ -161,59 +163,91 @@ function Show-ProviderMenu {
                 }
             }
         }
-    } until ($false)
+    }
 }
 
 function Show-ModelMenu {
-    $config = Get-AppConfig
-    $list = @()
-    foreach ($p in $config.providers) { $list += $p.name }
-    $list += $UI.backLabel
-
-    $pIdx = Invoke-Menu $UI.manageModelsTitle $list
-    if ($pIdx -eq "ESC" -or $pIdx -eq ($list.Count - 1)) { return }
-
-    do {
+    while ($true) {
         $config = Get-AppConfig
-        $p = $config.providers[$pIdx]
-        $mList = @()
-        foreach ($m in $p.models) { $mList += "$($m.name) ($($m.id))" }
-        $mList += $UI.addModel
-        $mList += $UI.delModel
-        $mList += $UI.backLabel
+        if ($null -eq $config.providers -or $config.providers.Count -eq 0) {
+            Write-Host "`n$($UI.errorMsg)" -ForegroundColor Red
+            Read-Host
+            return
+        }
 
-        $choice = Invoke-Menu "$($UI.manageModelsTitle) ($($p.name))" $mList
-        if ($choice -eq "ESC" -or $choice -eq ($mList.Count - 1)) { return }
+        $allModels = @()
+        for ($pIdx = 0; $pIdx -lt $config.providers.Count; $pIdx++) {
+            $p = $config.providers[$pIdx]
+            if ($null -ne $p.models) {
+                $mCount = @($p.models).Count
+                for ($mIdx = 0; $mIdx -lt $mCount; $mIdx++) {
+                    $m = $p.models[$mIdx]
+                    $obj = [PSCustomObject]@{ 
+                        pIdx = $pIdx
+                        mIdx = $mIdx
+                        displayText = "$($p.name) > $($m.name)"
+                    }
+                    $allModels += $obj
+                }
+            }
+        }
 
-        if ($choice -eq ($mList.Count - 3)) {
-            $name = Read-StringWithCancel "Name: "
+        $list = @()
+        foreach ($item in $allModels) { $list += $item.displayText }
+        $list += $UI.addModel
+        $list += $UI.delModel
+        $list += $UI.backLabel
+
+        $choice = Invoke-Menu $UI.manageModelsTitle $list
+        if ($choice -eq "ESC" -or $choice -eq ($list.Count - 1)) { return }
+
+        if ($choice -eq ($list.Count - 3)) { # Add Model
+            $pNames = @()
+            foreach ($p in $config.providers) { $pNames += $p.name }
+            $pChoice = Invoke-Menu $UI.selectProviderPrompt ($pNames + $UI.backLabel)
+            if ($pChoice -eq "ESC" -or $pChoice -ge $pNames.Count) { continue }
+            
+            $name = Read-StringWithCancel $UI.modelNamePrompt
             if ($null -ne $name) {
-                $id = Read-StringWithCancel "ID: "
+                $id = Read-StringWithCancel $UI.modelIdPrompt
                 if ($null -ne $id) {
-                    $p.models += @{ name = $name; id = $id }
+                    # 确保 models 是数组
+                    if ($null -eq $config.providers[$pChoice].models) { $config.providers[$pChoice].models = @() }
+                    $config.providers[$pChoice].models += @{ name = $name; id = $id }
                     Save-Config $config
                 }
             }
         }
-        elseif ($choice -eq ($mList.Count - 2)) {
-            $idxStr = Read-StringWithCancel "Index: "
+        elseif ($choice -eq ($list.Count - 2)) { # Delete Model
+            if ($allModels.Count -eq 0) { continue }
+            $totalCount = $allModels.Count
+            $idxStr = Read-StringWithCancel "$($UI.deleteModelIndexPrompt) (1-$totalCount): "
             if ($idxStr -match "^\d+$") {
                 $idx = [int]$idxStr - 1
-                if ($idx -ge 0 -and $idx -lt $p.models.Count) {
-                    $p.models = $p.models | Where-Object { $_.id -ne $p.models[$idx].id }
+                if ($idx -ge 0 -and $idx -lt $totalCount) {
+                    $target = $allModels[$idx]
+                    $pIdx = $target.pIdx
+                    $mIdx = $target.mIdx
+                    
+                    $oldModels = $config.providers[$pIdx].models
+                    $newModels = @()
+                    for ($i = 0; $i -lt $oldModels.Count; $i++) {
+                        if ($i -ne $mIdx) { $newModels += $oldModels[$i] }
+                    }
+                    $config.providers[$pIdx].models = $newModels
                     Save-Config $config
                 }
             }
         }
-    } until ($false)
+    }
 }
 
 # --- Main ---
 
-do {
+while ($true) {
     $config = Get-AppConfig
     if ($config.providers.Count -eq 0) {
-        $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = $true; useAuthToken = $false }
+        $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = true; useAuthToken = false }
         Save-Config $config
     }
     
@@ -227,14 +261,13 @@ do {
             if ($tIdx -eq "ESC" -or $tIdx -eq 2) { continue }
             $tName = if ($tIdx -eq 0) { "Claude Code" } else { "Codex CLI" }
 
-            do {
+            while ($true) {
                 $config = Get-AppConfig
                 $pIdx = [math]::Min($config.current.providerIndex, $config.providers.Count - 1)
                 $currP = $config.providers[$pIdx]
                 $mIdx = [math]::Min($config.current.modelIndex, [math]::Max(0, $currP.models.Count - 1))
                 $currM = if ($currP.models.Count -gt 0) { $currP.models[$mIdx] } else { @{ name = $UI.notConfigured; id = "none" } }
                 
-                # 配置详情去空格对齐
                 $header = "$($UI.configHeader)`n$($UI.providerLabel): $($currP.name)`n$($UI.modelLabel): $($currM.name)"
                 $subChoice = Invoke-Menu "$($UI.launchTitle) - $tName" $UI.launchOptions $header
                 
@@ -280,9 +313,10 @@ do {
                         }
                     }
                 }
-            } until ($false)
+            }
         }
         1 { Show-ProviderMenu }
         2 { Show-ModelMenu }
     }
-} until ($false)
+}
+

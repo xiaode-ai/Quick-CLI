@@ -6,7 +6,7 @@
   "notConfigured": "未配置",
   "menuItems": [
     "🚀 启动CLI",
-    "⚙️  提供商管理",
+    "⚙️ 提供商管理",
     "🤖 模型管理",
     "🚪 退出"
   ],
@@ -29,5 +29,9 @@
   "cancelledMsg": "[已取消]",
   "launchingMsg": "正在启动:",
   "exitMsg": "已退出。按回车键返回菜单...",
-  "errorMsg": "错误：请先添加模型！"
+  "errorMsg": "错误：请先添加模型！",
+  "selectProviderPrompt": "选择所属提供商",
+  "modelNamePrompt": "模型名称: ",
+  "modelIdPrompt": "模型 ID (如 gpt-4o): ",
+  "deleteModelIndexPrompt": "输入要删除的模型序号"
 }
