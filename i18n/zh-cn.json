@@ -29,6 +29,7 @@
   "navHint": "(↑↓：切换，Enter：确认，Esc：返回)",
   "cancelledMsg": "[已取消]",
   "launchingMsg": "正在启动:",
+  "exitHintClaude": "提示：输入 /exit 或 Ctrl+D 可退出CLI并返回菜单。",
   "exitMsg": "已退出。按回车键返回菜单...",
   "errorMsg": "错误：请先添加模型！",
   "selectProviderPrompt": "选择所属提供商",

@@ -29,6 +29,7 @@
   "navHint": "(↑↓: Select, Enter: Confirm, Esc: Back)",
   "cancelledMsg": "[Cancelled]",
   "launchingMsg": "Launching:",
+  "exitHintClaude": "Hint: Type /exit or Ctrl+D to exit CLI and return to menu.",
   "exitMsg": "Exited. Press Enter to return to menu...",
   "errorMsg": "Error: Please add a model first!",
   "selectProviderPrompt": "Select Provider",

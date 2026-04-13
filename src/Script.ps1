@@ -293,6 +293,8 @@ while ($true) {
                             $env:ANTHROPIC_BASE_URL = $cleanUrl; $env:ANTHROPIC_MODEL = $currM.id
                             if ($currP.useAuthToken) { $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_AUTH_TOKEN = $currP.apiKey } else { $env:ANTHROPIC_API_KEY = $currP.apiKey; $env:ANTHROPIC_AUTH_TOKEN = "" }
                             $env:CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS = if ($currP.disableBetas) { "true" } else { "false" }
+                            
+                            Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             claude
                         }
                         else {
@@ -302,8 +304,6 @@ while ($true) {
                             $bx = if ($currP.baseUrl -notmatch "/v1$") { "$($currP.baseUrl)/v1" } else { $currP.baseUrl }
                             codex --config openai_base_url="$bx" -m $currM.id
                         }
-                        Write-Host "`n$($UI.exitMsg)"
-                        Read-Host
                     }
                     1 { # Switch Provider
                         $pList = @()
