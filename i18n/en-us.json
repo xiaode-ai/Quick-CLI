@@ -1,0 +1,40 @@
+{
+  "mainTitle": "Quick CLI",
+  "configHeader": "Current Configuration Details:",
+  "providerLabel": "Provider",
+  "modelLabel": "Model",
+  "notConfigured": "Not Configured",
+  "menuItems": [
+    "🚀 Start CLI",
+    "⚙️ Provider Management",
+    "🤖 Model Management",
+    "🌐 Language",
+    "🚪 Exit"
+  ],
+  "engineTitle": "Select Engine",
+  "launchTitle": "Launch Config",
+  "launchOptions": [
+    "🚀 Run",
+    "🔄 Switch Provider",
+    "🔄 Switch Model",
+    "↩️ Back"
+  ],
+  "backLabel": "↩️ Back",
+  "manageProvidersTitle": "Provider Management",
+  "addProvider": "[+] Add Provider",
+  "delProvider": "[-] Delete Provider",
+  "manageModelsTitle": "Model Management",
+  "addModel": "[+] Add Model",
+  "delModel": "[-] Delete Model",
+  "navHint": "(↑↓: Select, Enter: Confirm, Esc: Back)",
+  "cancelledMsg": "[Cancelled]",
+  "launchingMsg": "Launching:",
+  "exitMsg": "Exited. Press Enter to return to menu...",
+  "errorMsg": "Error: Please add a model first!",
+  "selectProviderPrompt": "Select Provider",
+  "modelNamePrompt": "Model Name: ",
+  "modelIdPrompt": "Model ID: ",
+  "deleteModelIndexPrompt": "Enter the index of the model to delete",
+  "currentTag": " [Default]",
+  "selectLanguagePrompt": "Select Language"
+}

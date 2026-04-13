@@ -1,5 +1,73 @@
 # Quick-CLI 🚀
 
+**Quick-CLI** is a unified command-line management script designed for developers. It provides an elegant, high-efficiency, flicker-free Terminal User Interface (TUI) for **Claude Code** and **Codex CLI**.
+
+[English](#quick-cli-) | [简体中文](#quick-cli-zh)
+
+---
+
+## ✨ Features
+
+- 🛠 **Unified Management**: Seamlessly switch between and launch Claude Code and Codex CLI in one interface.
+- ⚡ **Zero-Flicker TUI**: Built with PowerShell atomic rendering technology for a smooth, stable menu experience.
+- 🌍 **Cross-Platform**: Optimized for Windows, macOS, and Linux.
+- 🌐 **Multi-Language Support**: Easily switch between English and Chinese.
+- 🔒 **Environment Isolation**: Automatically handles storage isolation and secure API configurations.
+
+---
+
+## ⚡ Quick One-Line Install
+
+Choose the command for your OS, paste it into your terminal, and run it to complete automatic download, installation, and environment setup:
+
+### 🪟 Windows (PowerShell)
+```powershell
+powershell -c "irm https://raw.githubusercontent.com/YourUsername/Quick-CLI/main/install.ps1 | iex"
+```
+
+### 🍎 macOS / 🐧 Linux (Bash/zsh)
+Must have [PowerShell Core](https://github.com/PowerShell/PowerShell) installed.
+```bash
+curl -sSL https://raw.githubusercontent.com/YourUsername/Quick-CLI/main/install.ps1 | pwsh
+```
+
+> **Note**: Replace `YourUsername` in the URL with your actual GitHub username.
+
+---
+
+## 🚀 Launch & Usage
+
+After installation, **restart your terminal**, then launch the tool from anywhere using:
+
+*   **`qc`** (Recommended)
+*   **`quick`**
+*   **`quick-cli`**
+
+---
+
+## ⌨️ Shortcuts
+
+| Key | Function |
+| :--- | :--- |
+| **↑ / ↓ / Tab** | Switch current option |
+| **Enter** | Confirm selection |
+| **1 - N** | Quickly jump to option by number |
+| **Esc** | Back to previous menu / Cancel text input |
+
+---
+
+## 🎨 Customization Guide
+
+- **Localization (i18n)**: You can edit files in the `i18n/` directory (e.g., `en-us.json`, `zh-cn.json`) to customize menu text or emojis.
+- **Configuration (config.json)**: Provider information and model lists are persisted in this file at the root.
+
+---
+
+<br>
+<br>
+
+# Quick-CLI (ZH)
+
 **Quick-CLI** 是一个专为开发者设计的统一命令行管理脚本，旨在为 **Claude Code** 和 **Codex CLI** 提供一个优雅、高效且无闪烁的终端用户界面（TUI）。
 
 ---
@@ -9,6 +77,7 @@
 - 🛠 **统一管理**：在一个界面中无缝切换和启动 Claude Code 与 Codex CLI。
 - ⚡ **零闪烁 TUI**：基于 PowerShell 原子渲染技术，提供静止如水的菜单交互体验。
 - 🌍 **全平台支持**：完美适配 Windows、Linux 和 macOS。
+- 🌐 **多语言支持**：支持中英文一键切换。
 - 🔒 **环境隔离**：自动处理存储隔离与 API 安全配置。
 
 ---
@@ -27,8 +96,6 @@ powershell -c "irm https://raw.githubusercontent.com/你的用户名/Quick-CLI/m
 ```bash
 curl -sSL https://raw.githubusercontent.com/你的用户名/Quick-CLI/main/install.ps1 | pwsh
 ```
-
-> **注意**：请将 URL 中的 `你的用户名` 替换为你真实的 GitHub 用户名。
 
 ---
 
@@ -55,11 +122,11 @@ curl -sSL https://raw.githubusercontent.com/你的用户名/Quick-CLI/main/insta
 
 ## 🎨 自定义指南
 
-- **修改界面文本 (UI.json)**：你可以编辑 `src/UI.json` 来更改菜单名称或表情符号。
+- **多语言支持 (i18n)**：你可以编辑 `i18n/` 目录下的 JSON 文件来更改菜单名称或表情符号。
 - **配置文件 (config.json)**：提供商信息和模型列表会持久化存储在该文件中。
 
 ---
 
-## 📜 许可证
+## 📜 License
 
 本项目按原样提供，仅供学习与提升工作效率使用。

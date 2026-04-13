@@ -8,6 +8,7 @@
     "🚀 启动CLI",
     "⚙️ 提供商管理",
     "🤖 模型管理",
+    "🌐 语言",
     "🚪 退出"
   ],
   "engineTitle": "选择引擎",
@@ -32,7 +33,8 @@
   "errorMsg": "错误：请先添加模型！",
   "selectProviderPrompt": "选择所属提供商",
   "modelNamePrompt": "模型名称: ",
-  "modelIdPrompt": "模型 ID (如 gpt-4o): ",
+  "modelIdPrompt": "模型 ID: ",
   "deleteModelIndexPrompt": "输入要删除的模型序号",
-  "currentTag": " [默认]"
+  "currentTag": " [默认]",
+  "selectLanguagePrompt": "选择语言"
 }

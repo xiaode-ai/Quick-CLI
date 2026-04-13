@@ -22,11 +22,19 @@ function Save-Config($config) {
 }
 
 function Get-AppUI {
-    if (Test-Path $uiPath) {
-        $raw = Get-Content $uiPath -Raw -Encoding UTF8
+    $config = Get-AppConfig
+    $lang = "en-us" # Default
+    if ($config -and $config.current -and $config.current.language) { $lang = $config.current.language }
+    
+    $i18nDir = Join-Path $parentDir "i18n"
+    $uiFile = Join-Path $i18nDir "$lang.json"
+    
+    if (Test-Path $uiFile) {
+        $raw = Get-Content $uiFile -Raw -Encoding UTF8
         return $raw | ConvertFrom-Json
     }
-    return @{ mainTitle = "Quick CLI" }
+    # Fallback to any available UI file if zh-cn is also missing
+    return @{ mainTitle = "Quick CLI"; menuItems = @("Start CLI", "Exit") }
 }
 
 $UI = Get-AppUI
@@ -245,9 +253,11 @@ function Show-ModelMenu {
 # --- Main ---
 
 while ($true) {
+    $UI = Get-AppUI # Reload UI each loop to support language switching
     $config = Get-AppConfig
     if ($config.providers.Count -eq 0) {
         $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = true; useAuthToken = false }
+        if (-not $config.current.language) { $config.current.language = "en-us" }
         Save-Config $config
     }
     
@@ -329,6 +339,15 @@ while ($true) {
         }
         1 { Show-ProviderMenu }
         2 { Show-ModelMenu }
+        3 { # Language Selection
+            $langs = @("zh-cn", "en-us")
+            $langNames = @("简体中文 (Chinese)", "English")
+            $lIdx = Invoke-Menu $UI.selectLanguagePrompt ($langNames + $UI.backLabel)
+            if ($lIdx -ne "ESC" -and $lIdx -lt $langs.Count) {
+                $config.current.language = $langs[$lIdx]
+                Save-Config $config
+            }
+        }
     }
 }
 
