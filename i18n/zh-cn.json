@@ -8,22 +8,16 @@
     "🚀 启动CLI",
     "⚙️ 提供商管理",
     "🤖 模型管理",
-    "🌐 语言",
-    "🚪 退出"
+    "🌐 语言"
   ],
-  "engineTitle": "选择CLI",
-  "launchTitle": "启动配置",
   "launchOptions": [
     "🚀 运行",
     "🔄 切换提供商",
-    "🔄 切换模型",
-    "↩️ 返回"
+    "🔄 切换模型"
   ],
   "backLabel": "返回",
-  "manageProvidersTitle": "提供商管理",
   "addProvider": "[+] 新增提供商",
   "delProvider": "[-] 删除提供商",
-  "manageModelsTitle": "模型管理",
   "addModel": "[+] 新增模型",
   "delModel": "[-] 删除模型",
   "navHint": "(↑↓：切换，Enter：确认，Esc：返回)",
@@ -36,7 +30,9 @@
   "modelNamePrompt": "模型名称: ",
   "modelIdPrompt": "模型 ID: ",
   "deleteModelIndexPrompt": "输入要删除的模型序号",
-  "currentTag": " [默认]",
+  "currentTag": " [·]",
   "selectLanguagePrompt": "选择语言",
-  "langList": ["English", "简体中文"]
+  "langList": ["English", "简体中文"],
+  "officialProvider": "官方",
+  "defaultModel": "默认"
 }

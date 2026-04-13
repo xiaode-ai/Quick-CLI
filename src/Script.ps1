@@ -135,6 +135,7 @@ function Read-StringWithCancel {
 # --- Pages ---
 
 function Show-ProviderMenu {
+    param($Title)
     while ($true) {
         $config = Get-AppConfig
         $list = @()
@@ -143,10 +144,9 @@ function Show-ProviderMenu {
         }
         $list += $UI.addProvider
         $list += $UI.delProvider
-        $list += $UI.backLabel
 
-        $choice = Invoke-Menu $UI.manageProvidersTitle $list
-        if ($choice -eq "ESC" -or $choice -eq ($list.Count - 1)) { return }
+        $choice = Invoke-Menu $Title $list
+        if ($choice -eq "ESC") { return }
 
         if ($choice -eq ($list.Count - 3)) {
             $name = Read-StringWithCancel "Name: "
@@ -175,6 +175,7 @@ function Show-ProviderMenu {
 }
 
 function Show-ModelMenu {
+    param($Title)
     while ($true) {
         $config = Get-AppConfig
         if ($null -eq $config.providers -or $config.providers.Count -eq 0) {
@@ -204,16 +205,15 @@ function Show-ModelMenu {
         foreach ($item in $allModels) { $list += $item.displayText }
         $list += $UI.addModel
         $list += $UI.delModel
-        $list += $UI.backLabel
 
-        $choice = Invoke-Menu $UI.manageModelsTitle $list
-        if ($choice -eq "ESC" -or $choice -eq ($list.Count - 1)) { return }
+        $choice = Invoke-Menu $Title $list
+        if ($choice -eq "ESC") { return }
 
         if ($choice -eq ($list.Count - 3)) { # Add Model
             $pNames = @()
             foreach ($p in $config.providers) { $pNames += $p.name }
-            $pChoice = Invoke-Menu $UI.selectProviderPrompt ($pNames + $UI.backLabel)
-            if ($pChoice -eq "ESC" -or $pChoice -ge $pNames.Count) { continue }
+            $pChoice = Invoke-Menu $UI.selectProviderPrompt $pNames
+            if ($pChoice -eq "ESC") { continue }
             
             $name = Read-StringWithCancel $UI.modelNamePrompt
             if ($null -ne $name) {
@@ -263,54 +263,81 @@ while ($true) {
     
     $choice = Invoke-Menu $UI.mainTitle $UI.menuItems
 
-    if ($choice -eq "ESC" -or $choice -eq ($UI.menuItems.Count - 1)) { break }
+    if ($choice -eq "ESC") { break }
+    $selText = $UI.menuItems[$choice]
 
     switch ($choice) {
         0 { # Start CLI Flow
-            $tIdx = Invoke-Menu $UI.engineTitle ($config.tools + $UI.backLabel)
-            if ($tIdx -eq "ESC" -or $tIdx -ge $config.tools.Count) { continue }
+            $tIdx = Invoke-Menu $selText $config.tools
+            if ($tIdx -eq "ESC") { continue }
             $tName = $config.tools[$tIdx]
 
             while ($true) {
                 $config = Get-AppConfig
-                $pIdx = [math]::Min($config.current.providerIndex, $config.providers.Count - 1)
-                $currP = $config.providers[$pIdx]
-                $mIdx = [math]::Min($config.current.modelIndex, [math]::Max(0, $currP.models.Count - 1))
-                $currM = if ($currP.models.Count -gt 0) { $currP.models[$mIdx] } else { @{ name = $UI.notConfigured; id = "none" } }
+                if (-not $config.current.PSObject.Properties.Item('toolSettings')) {
+                    $config.current | Add-Member -NotePropertyName toolSettings -NotePropertyValue ([PSCustomObject]@{})
+                }
+                $ts = $config.current.toolSettings."$tName"
+                
+                $pIdx = if ($null -eq $ts) { -1 } else { $ts.providerIndex }
+                $mIdx = if ($null -eq $ts) { 0 } else { $ts.modelIndex }
+
+                $currP = $null
+                $currM = $null
+
+                if ($pIdx -eq -1) {
+                    $currP = @{ name = $UI.officialProvider; isOfficial = $true; models = @() }
+                    $currM = @{ name = $UI.defaultModel; id = "" }
+                } else {
+                    $safePIdx = [math]::Min($pIdx, $config.providers.Count - 1)
+                    $currP = $config.providers[$safePIdx]
+                    $safeMIdx = [math]::Min($mIdx, [math]::Max(0, $currP.models.Count - 1))
+                    $currM = if ($currP.models.Count -gt 0) { $currP.models[$safeMIdx] } else { @{ name = $UI.notConfigured; id = "none" } }
+                }
                 
                 $header = "$($UI.configHeader)`n$($UI.providerLabel): $($currP.name)`n$($UI.modelLabel): $($currM.name)"
-                $subChoice = Invoke-Menu "$($UI.launchTitle) - $tName" $UI.launchOptions $header
+                $subChoice = Invoke-Menu $tName $UI.launchOptions $header
                 
-                if ($subChoice -eq "ESC" -or $subChoice -eq 3) { break }
+                if ($subChoice -eq "ESC") { break }
+                $optText = $UI.launchOptions[$subChoice]
 
                 switch ($subChoice) {
                     0 { # Run
                         if ($currM.id -eq "none") { Write-Host "`n$($UI.errorMsg)" -ForegroundColor Red; Read-Host; continue }
                         Write-Host "`n$($UI.launchingMsg) $tName..." -ForegroundColor Yellow
                         if ($tName -like "*Claude*") {
-                            # Claude Code 使用 OpenRouter 时不能带 /v1，自动剥离后缀
-                            $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
-                            $env:ANTHROPIC_BASE_URL = $cleanUrl; $env:ANTHROPIC_MODEL = $currM.id
-                            if ($currP.useAuthToken) { $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_AUTH_TOKEN = $currP.apiKey } else { $env:ANTHROPIC_API_KEY = $currP.apiKey; $env:ANTHROPIC_AUTH_TOKEN = "" }
+                            if ($currP.isOfficial) {
+                                $env:ANTHROPIC_BASE_URL = ""; $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_MODEL = ""
+                            } else {
+                                # Claude Code 使用 OpenRouter 时不能带 /v1，自动剥离后缀
+                                $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
+                                $env:ANTHROPIC_BASE_URL = $cleanUrl; $env:ANTHROPIC_MODEL = $currM.id
+                                if ($currP.useAuthToken) { $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_AUTH_TOKEN = $currP.apiKey } else { $env:ANTHROPIC_API_KEY = $currP.apiKey; $env:ANTHROPIC_AUTH_TOKEN = "" }
+                            }
                             $env:CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS = if ($currP.disableBetas) { "true" } else { "false" }
                             
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             claude
                         }
                         elseif ($tName -like "*Gemini*") {
-                            # 注入 Gemini 官方及常见第三方工具所需的环境变量
-                            $env:GEMINI_API_KEY = $currP.apiKey
-                            $env:GOOGLE_API_KEY = $currP.apiKey
-                            $env:GEMINI_MODEL = $currM.id
-                            
-                            # 0-修改代理方案 (GCR): 自动重定向 API 请求到用户配置的 Base URL (如 OpenRouter)
-                            # 剥离最后的 /v1 或其他后缀，以符合各版本工具的 Base URL 规范
-                            $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
-                            $env:GOOGLE_GEMINI_BASE_URL = $cleanUrl
-                            $env:GOOGLE_VERTEX_BASE_URL = $cleanUrl
-                            $env:CODE_ASSIST_ENDPOINT = $cleanUrl
-                            # 额外增加通用端点环境变量以增强兼容性
-                            $env:GENERATIVE_AI_ENDPOINT = $cleanUrl
+                            if ($currP.isOfficial) {
+                                $env:GEMINI_API_KEY = ""; $env:GOOGLE_API_KEY = ""; $env:GEMINI_MODEL = ""; $env:GOOGLE_GEMINI_BASE_URL = ""
+                                $env:GOOGLE_VERTEX_BASE_URL = ""; $env:CODE_ASSIST_ENDPOINT = ""; $env:GENERATIVE_AI_ENDPOINT = ""
+                            } else {
+                                # 注入 Gemini 官方及常见第三方工具所需的环境变量
+                                $env:GEMINI_API_KEY = $currP.apiKey
+                                $env:GOOGLE_API_KEY = $currP.apiKey
+                                $env:GEMINI_MODEL = $currM.id
+                                
+                                # 0-修改代理方案 (GCR): 自动重定向 API 请求到用户配置的 Base URL (如 OpenRouter)
+                                # 剥离最后的 /v1 或其他后缀，以符合各版本工具的 Base URL 规范
+                                $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
+                                $env:GOOGLE_GEMINI_BASE_URL = $cleanUrl
+                                $env:GOOGLE_VERTEX_BASE_URL = $cleanUrl
+                                $env:CODE_ASSIST_ENDPOINT = $cleanUrl
+                                # 额外增加通用端点环境变量以增强兼容性
+                                $env:GENERATIVE_AI_ENDPOINT = $cleanUrl
+                            }
                             
                             # 强制跳过身份验证提示及项目 ID 检查 (GCR 优化)
                             $env:GOOGLE_CLOUD_PROJECT = "quick-cli-dummy"
@@ -322,51 +349,80 @@ while ($true) {
                             gemini
                         }
                         else {
-                            $codexTmpHome = Join-Path $HOME ".codex_custom_api"
-                            if (-not (Test-Path $codexTmpHome)) { New-Item -ItemType Directory -Path $codexTmpHome -Force | Out-Null }
-                            $env:CODEX_HOME = $codexTmpHome; $env:OPENAI_API_KEY = $currP.apiKey
-                            $bx = if ($currP.baseUrl -notmatch "/v1$") { "$($currP.baseUrl)/v1" } else { $currP.baseUrl }
-                            codex --config openai_base_url="$bx" -m $currM.id
+                            if ($currP.isOfficial) {
+                                codex
+                            } else {
+                                $codexTmpHome = Join-Path $HOME ".codex_custom_api"
+                                if (-not (Test-Path $codexTmpHome)) { New-Item -ItemType Directory -Path $codexTmpHome -Force | Out-Null }
+                                $env:CODEX_HOME = $codexTmpHome; $env:OPENAI_API_KEY = $currP.apiKey
+                                $bx = if ($currP.baseUrl -notmatch "/v1$") { "$($currP.baseUrl)/v1" } else { $currP.baseUrl }
+                                codex --config openai_base_url="$bx" -m $currM.id
+                            }
                         }
                     }
                     1 { # Switch Provider
                         $pList = @()
+                        $offName = $UI.officialProvider
+                        if ($pIdx -eq -1) { $offName += $UI.currentTag }
+                        $pList += $offName
+
                         for ($i = 0; $i -lt $config.providers.Count; $i++) {
                             $p = $config.providers[$i]
                             $name = $p.name
-                            if ($i -eq $config.current.providerIndex) { $name += $UI.currentTag }
+                            if ($i -eq $pIdx) { $name += $UI.currentTag }
                             $pList += $name
                         }
-                        $pIdxS = Invoke-Menu $UI.providerLabel ($pList + $UI.backLabel)
-                        if ($pIdxS -ne "ESC" -and $pIdxS -lt $pList.Count) {
-                            $config.current.providerIndex = $pIdxS
-                            $config.current.modelIndex = 0
-                            Save-Config $config
+                        $pIdxS = Invoke-Menu $optText $pList
+                        if ($pIdxS -eq "ESC") { continue }
+                        
+                        $newPIdx = if ($pIdxS -eq 0) { -1 } else { $pIdxS - 1 }
+                        
+                        if (-not $config.current.PSObject.Properties.Item('toolSettings')) {
+                            $config.current | Add-Member -NotePropertyName toolSettings -NotePropertyValue ([PSCustomObject]@{})
                         }
+                        
+                        if (-not $config.current.toolSettings.PSObject.Properties.Item($tName)) {
+                            $config.current.toolSettings | Add-Member -NotePropertyName $tName -NotePropertyValue ([PSCustomObject]@{ providerIndex = $newPIdx; modelIndex = 0 })
+                        } else {
+                            $config.current.toolSettings."$tName".providerIndex = $newPIdx
+                            $config.current.toolSettings."$tName".modelIndex = 0
+                        }
+                        Save-Config $config
                     }
                     2 { # Switch Model
+                        if ($currP.isOfficial) {
+                            # 官方提供商仅支持默认模型
+                            Invoke-Menu $optText @($UI.defaultModel + $UI.currentTag)
+                            continue
+                        }
                         $mList = @()
                         for ($i = 0; $i -lt $currP.models.Count; $i++) {
                             $m = $currP.models[$i]
                             $name = $m.name
-                            if ($i -eq $config.current.modelIndex) { $name += $UI.currentTag }
+                            if ($i -eq $mIdx) { $name += $UI.currentTag }
                             $mList += $name
                         }
-                        $mIdxS = Invoke-Menu "$($UI.modelLabel) ($($currP.name))" ($mList + $UI.backLabel)
-                        if ($mIdxS -ne "ESC" -and $mIdxS -lt $mList.Count) {
-                            $config.current.modelIndex = $mIdxS
+                        $mIdxS = Invoke-Menu $optText $mList
+                        if ($mIdxS -ne "ESC") {
+                            if (-not $config.current.PSObject.Properties.Item('toolSettings')) {
+                                $config.current | Add-Member -NotePropertyName toolSettings -NotePropertyValue ([PSCustomObject]@{})
+                            }
+                            if (-not $config.current.toolSettings.PSObject.Properties.Item($tName)) {
+                                $config.current.toolSettings | Add-Member -NotePropertyName $tName -NotePropertyValue ([PSCustomObject]@{ providerIndex = -1 })
+                            }
+                            $config.current.toolSettings."$tName".modelIndex = $mIdxS
                             Save-Config $config
                         }
                     }
                 }
             }
         }
-        1 { Show-ProviderMenu }
-        2 { Show-ModelMenu }
+        1 { Show-ProviderMenu $selText }
+        2 { Show-ModelMenu $selText }
         3 { # Language Selection
             $langs = @("en-us", "zh-cn")
-            $lIdx = Invoke-Menu $UI.selectLanguagePrompt ($UI.langList + $UI.backLabel)
-            if ($lIdx -ne "ESC" -and $lIdx -lt $langs.Count) {
+            $lIdx = Invoke-Menu $UI.selectLanguagePrompt $UI.langList
+            if ($lIdx -ne "ESC") {
                 $config.current.language = $langs[$lIdx]
                 Save-Config $config
             }

@@ -8,22 +8,16 @@
     "🚀 Start CLI",
     "⚙️ Provider Management",
     "🤖 Model Management",
-    "🌐 Language",
-    "🚪 Exit"
+    "🌐 Language"
   ],
-  "engineTitle": "Select CLI",
-  "launchTitle": "Launch Config",
   "launchOptions": [
     "🚀 Run",
     "🔄 Switch Provider",
-    "🔄 Switch Model",
-    "↩️ Back"
+    "🔄 Switch Model"
   ],
   "backLabel": "Back",
-  "manageProvidersTitle": "Provider Management",
   "addProvider": "[+] Add Provider",
   "delProvider": "[-] Delete Provider",
-  "manageModelsTitle": "Model Management",
   "addModel": "[+] Add Model",
   "delModel": "[-] Delete Model",
   "navHint": "(↑↓: Select, Enter: Confirm, Esc: Back)",
@@ -36,7 +30,9 @@
   "modelNamePrompt": "Model Name: ",
   "modelIdPrompt": "Model ID: ",
   "deleteModelIndexPrompt": "Enter the index of the model to delete",
-  "currentTag": " [Default]",
+  "currentTag": " [·]",
   "selectLanguagePrompt": "Select Language",
-  "langList": ["English", "简体中文"]
+  "langList": ["English", "简体中文"],
+  "officialProvider": "Official",
+  "defaultModel": "Default"
 }
