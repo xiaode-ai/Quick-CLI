@@ -323,6 +323,7 @@ while ($true) {
                             if ($currP.isOfficial) {
                                 $env:GEMINI_API_KEY = ""; $env:GOOGLE_API_KEY = ""; $env:GEMINI_MODEL = ""; $env:GOOGLE_GEMINI_BASE_URL = ""
                                 $env:GOOGLE_VERTEX_BASE_URL = ""; $env:CODE_ASSIST_ENDPOINT = ""; $env:GENERATIVE_AI_ENDPOINT = ""
+                                $env:GOOGLE_CLOUD_PROJECT = ""; $env:GOOGLE_CLOUD_PROJECT_ID = ""; $env:GEMINI_CLI_FORCE_AUTH_METHOD = ""
                             } else {
                                 # 注入 Gemini 官方及常见第三方工具所需的环境变量
                                 $env:GEMINI_API_KEY = $currP.apiKey
@@ -337,13 +338,13 @@ while ($true) {
                                 $env:CODE_ASSIST_ENDPOINT = $cleanUrl
                                 # 额外增加通用端点环境变量以增强兼容性
                                 $env:GENERATIVE_AI_ENDPOINT = $cleanUrl
+
+                                # 强制跳过身份验证提示及项目 ID 检查 (GCR 优化仅限非官方渠道)
+                                $env:GOOGLE_CLOUD_PROJECT = "quick-cli-dummy"
+                                $env:GOOGLE_CLOUD_PROJECT_ID = "quick-cli-dummy"
+                                $env:GEMINI_CLI_FORCE_AUTH_METHOD = "api-key"
+                                $env:GOOGLE_GENAI_USE_VERTEXAI = "false"
                             }
-                            
-                            # 强制跳过身份验证提示及项目 ID 检查 (GCR 优化)
-                            $env:GOOGLE_CLOUD_PROJECT = "quick-cli-dummy"
-                            $env:GOOGLE_CLOUD_PROJECT_ID = "quick-cli-dummy"
-                            $env:GEMINI_CLI_FORCE_AUTH_METHOD = "api-key"
-                            $env:GOOGLE_GENAI_USE_VERTEXAI = "false"
                             
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             gemini
