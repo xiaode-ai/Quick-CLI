@@ -4,7 +4,7 @@
 Write-Host ">>> Quick-CLI One-Liner Installer <<<" -ForegroundColor Cyan
 
 $installDir = Join-Path $HOME ".quick-cli"
-$repoUrl = "https://github.com/你的用户名/Quick-CLI" # 这里以后要换成你的真实仓库地址
+$repoUrl = "https://github.com/Xiaode-AI/Quick-CLI"
 $zipUrl = "$repoUrl/archive/refs/heads/main.zip"
 
 # 1. Prepare directory
