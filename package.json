@@ -1,5 +1,6 @@
 {
-  "dependencies": {
-    "opencode-ai": "^1.4.3"
-  }
+    "dependencies": {
+        "opencode-ai": "^1.4.3"
+    },
+    "test_key_from_ps1": "Hello from PowerShell!"
 }

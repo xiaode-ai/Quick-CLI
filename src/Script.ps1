@@ -1,5 +1,6 @@
 # Quick CLI Manager (Aesthetic Polished Version)
 # Centered titles and aligned config details.
+# Centered titles and aligned config details.
 
 # OS check for encoding
 if ($IsWindows) {
