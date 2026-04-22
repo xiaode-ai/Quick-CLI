@@ -40,6 +40,9 @@ curl -sSL https://raw.githubusercontent.com/Xiaode-AI/Quick-CLI/main/install.ps1
 *   **`quick`**
 *   **`quick-cli`**
 
+> [!TIP]
+> **开发者直接运行**：如果你在项目根目录下，也可以直接执行 `.\src\Script.ps1` 启动。
+
 
 ## ⌨️ 快捷键说明
 
@@ -97,6 +100,9 @@ After installation, **restart your terminal**, then launch the tool from anywher
 *   **`qc`** (Recommended)
 *   **`quick`**
 *   **`quick-cli`**
+
+> [!TIP]
+> **Run from Source**: If you are in the project root, you can also run `.\src\Script.ps1` directly.
 
 
 ## ⌨️ Shortcuts

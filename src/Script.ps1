@@ -23,8 +23,14 @@ function Save-Config($config) {
 
 function Get-AppUI {
     $config = Get-AppConfig
-    $lang = "zh-cn" # Default
-    if ($config -and $config.current -and $config.current.language) { $lang = $config.current.language }
+    $lang = "en-us" # 默认兜底语言
+    $sysLang = if ((Get-Culture).Name -like "zh-*") { "zh-cn" } else { "en-us" }
+    
+    if ($config -and $config.current -and $config.current.language) { 
+        $lang = $config.current.language 
+    } else {
+        $lang = $sysLang
+    }
     
     $i18nDir = Join-Path $parentDir "i18n"
     $uiFile = Join-Path $i18nDir "$lang.json"
@@ -257,7 +263,9 @@ while ($true) {
     $config = Get-AppConfig
     if ($config.providers.Count -eq 0) {
         $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = true; useAuthToken = false }
-        if (-not $config.current.language) { $config.current.language = "zh-cn" }
+        if (-not $config.current.language) { 
+            $config.current.language = if ((Get-Culture).Name -like "zh-*") { "zh-cn" } else { "en-us" }
+        }
         Save-Config $config
     }
     
@@ -281,6 +289,11 @@ while ($true) {
                 
                 $pIdx = if ($null -eq $ts) { -1 } else { $ts.providerIndex }
                 $mIdx = if ($null -eq $ts) { 0 } else { $ts.modelIndex }
+
+                # Gemini 强制仅使用官方提供商
+                if ($tName -like "*Gemini*" -and $pIdx -ne -1) {
+                    $pIdx = -1; $mIdx = 0
+                }
 
                 $currP = $null
                 $currM = $null
@@ -367,11 +380,14 @@ while ($true) {
                         if ($pIdx -eq -1) { $offName += $UI.currentTag }
                         $pList += $offName
 
-                        for ($i = 0; $i -lt $config.providers.Count; $i++) {
-                            $p = $config.providers[$i]
-                            $name = $p.name
-                            if ($i -eq $pIdx) { $name += $UI.currentTag }
-                            $pList += $name
+                        # Gemini 官方 CLI 仅支持官方提供商，过滤掉自定义提供商
+                        if ($tName -notlike "*Gemini*") {
+                            for ($i = 0; $i -lt $config.providers.Count; $i++) {
+                                $p = $config.providers[$i]
+                                $name = $p.name
+                                if ($i -eq $pIdx) { $name += $UI.currentTag }
+                                $pList += $name
+                            }
                         }
                         $pIdxS = Invoke-Menu $optText $pList
                         if ($pIdxS -eq "ESC") { continue }
@@ -421,10 +437,22 @@ while ($true) {
         1 { Show-ProviderMenu $selText }
         2 { Show-ModelMenu $selText }
         3 { # Language Selection
-            $langs = @("zh-cn", "en-us")
-            $lIdx = Invoke-Menu $UI.selectLanguagePrompt $UI.langList
+            $allLangs = @(
+                @{ id = "zh-cn"; name = "简体中文" },
+                @{ id = "en-us"; name = "English" }
+            )
+            $currentLangId = $config.current.language
+            
+            # 将当前语言排在第一位
+            $sortedLangs = @($allLangs | Where-Object { $_.id -eq $currentLangId })
+            $sortedLangs += ($allLangs | Where-Object { $_.id -ne $currentLangId })
+            
+            $displayNames = @()
+            foreach ($l in $sortedLangs) { $displayNames += $l.name }
+            
+            $lIdx = Invoke-Menu $UI.selectLanguagePrompt $displayNames
             if ($lIdx -ne "ESC") {
-                $config.current.language = $langs[$lIdx]
+                $config.current.language = $sortedLangs[$lIdx].id
                 Save-Config $config
             }
         }
