@@ -7,10 +7,9 @@ if ($IsWindows) {
     chcp 65001 | Out-Null
 }
 
-# Correct paths: config.json is in parent (root), UI.json is same folder (src)
+# Correct paths: config.json is in parent (root)
 $parentDir = Split-Path $PSScriptRoot -Parent
 $configPath = Join-Path $parentDir "config.json"
-$uiPath = Join-Path $PSScriptRoot "UI.json"
 
 function Get-AppConfig {
     if (Test-Path $configPath) { return Get-Content $configPath | ConvertFrom-Json }
@@ -23,7 +22,7 @@ function Save-Config($config) {
 
 function Get-AppUI {
     $config = Get-AppConfig
-    $lang = "en-us" # Default
+    $lang = "zh-cn" # Default
     if ($config -and $config.current -and $config.current.language) { $lang = $config.current.language }
     
     $i18nDir = Join-Path $parentDir "i18n"
@@ -58,7 +57,7 @@ function Invoke-Menu {
         $buffer = New-Object System.Text.StringBuilder
         [void]$buffer.AppendLine("==========================================")
         
-        # 1. 鏍囬灞呬腑閫昏緫 (鑰冭檻涓枃瀛楃鍙兘鍗犲弻浣?
+        # 1. 标题居中逻辑 (考虑中文字符可能占双位)
         $displayLength = 0
         foreach ($char in $Title.ToCharArray()) {
             if ([int]$char -gt 255) { $displayLength += 2 } else { $displayLength += 1 }
@@ -257,7 +256,7 @@ while ($true) {
     $config = Get-AppConfig
     if ($config.providers.Count -eq 0) {
         $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = true; useAuthToken = false }
-        if (-not $config.current.language) { $config.current.language = "en-us" }
+        if (-not $config.current.language) { $config.current.language = "zh-cn" }
         Save-Config $config
     }
     
@@ -421,7 +420,7 @@ while ($true) {
         1 { Show-ProviderMenu $selText }
         2 { Show-ModelMenu $selText }
         3 { # Language Selection
-            $langs = @("en-us", "zh-cn")
+            $langs = @("zh-cn", "en-us")
             $lIdx = Invoke-Menu $UI.selectLanguagePrompt $UI.langList
             if ($lIdx -ne "ESC") {
                 $config.current.language = $langs[$lIdx]
