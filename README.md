@@ -123,4 +123,4 @@ After installation, **restart your terminal**, then launch the tool from anywher
 
 ## 📜 License
 
-MIT [LICENSE](LICENSE) © 2024 Xiaode-AI
+MIT [LICENSE](LICENSE) © 2026 Xiaode-AI
