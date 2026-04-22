@@ -4,7 +4,7 @@
   "description": "Unified CLI manager for AI tools like Claude Code and Codex CLI",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Xiaode-AI/Quick-CLI.git"
+    "url": "https://github.com/xiaode-ai/Quick-CLI"
   },
   "keywords": [
     "cli",
