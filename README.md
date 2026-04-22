@@ -57,7 +57,7 @@ curl -sSL https://raw.githubusercontent.com/Xiaode-AI/Quick-CLI/main/install.ps1
 ## 🎨 自定义指南
 
 - **多语言支持 (i18n)**：你可以编辑 `i18n/` 目录下的 JSON 文件来更改菜单名称或表情符号。
-- **配置文件 (config.json)**：提供商信息和模型列表会持久化存储在该文件中。
+- **配置文件 (config.json)**：提供商信息和模型列表会持久化存储在该文件中。你可以参考 `config.example.json` 进行配置。
 
 
 ---
@@ -118,9 +118,9 @@ After installation, **restart your terminal**, then launch the tool from anywher
 ## 🎨 Customization Guide
 
 - **Localization (i18n)**: You can edit files in the `i18n/` directory (e.g., `en-us.json`, `zh-cn.json`) to customize menu text or emojis.
-- **Configuration (config.json)**: Provider information and model lists are persisted in this file at the root.
+- **Configuration (config.json)**: Provider information and model lists are persisted in this file at the root. See `config.example.json` for a template.
 
 
 ## 📜 License
 
-本项目按原样提供，仅供学习与提升工作效率使用。
+MIT [LICENSE](LICENSE) © 2024 Xiaode-AI

@@ -1,0 +1,25 @@
+{
+  "providers": [
+    {
+      "name": "OpenRouter",
+      "baseUrl": "https://openrouter.ai/api",
+      "apiKey": "",
+      "models": [
+        {
+          "name": "Gemma 2 9B (Free)",
+          "id": "google/gemma-2-9b-it:free"
+        }
+      ],
+      "disableBetas": true,
+      "useAuthToken": true
+    }
+  ],
+  "tools": [
+    "Claude Code",
+    "Codex CLI",
+    "Gemini CLI"
+  ],
+  "current": {
+    "language": "zh-cn"
+  }
+}

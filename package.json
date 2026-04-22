@@ -1,6 +1,25 @@
 {
-    "dependencies": {
-        "opencode-ai": "^1.4.3"
-    },
-    "test_key_from_ps1": "Hello from PowerShell!"
+  "name": "@xiaode-ai/quick-cli",
+  "version": "1.0.0",
+  "description": "Unified CLI manager for AI tools like Claude Code and Codex CLI",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xiaode-AI/Quick-CLI.git"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "powershell",
+    "tui",
+    "claude-code"
+  ],
+  "author": "Xiaode-AI",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Xiaode-AI/Quick-CLI/issues"
+  },
+  "homepage": "https://github.com/Xiaode-AI/Quick-CLI#readme",
+  "dependencies": {
+    "opencode-ai": "^1.4.3"
+  }
 }
