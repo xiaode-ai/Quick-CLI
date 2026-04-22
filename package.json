@@ -19,6 +19,19 @@
     "url": "https://github.com/Xiaode-AI/Quick-CLI/issues"
   },
   "homepage": "https://github.com/Xiaode-AI/Quick-CLI#readme",
+  "bin": {
+    "qc": "scripts/qc.bat",
+    "quick": "scripts/quick.bat",
+    "quick-cli": "scripts/quick-cli.bat"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "i18n",
+    "config.example.json",
+    "LICENSE",
+    "README.md"
+  ],
   "dependencies": {
     "opencode-ai": "^1.4.3"
   }
