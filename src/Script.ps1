@@ -1,4 +1,4 @@
-# Quick CLI Manager (Aesthetic Polished Version)
+﻿# Quick CLI Manager (Aesthetic Polished Version)
 # Centered titles and aligned config details.
 # Centered titles and aligned config details.
 

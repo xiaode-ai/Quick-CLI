@@ -1,4 +1,4 @@
-# Quick-CLI Setup Assistant
+﻿# Quick-CLI Setup Assistant
 # Sets up aliases and checks dependencies.
 # Located in: scripts/setup.ps1
 
