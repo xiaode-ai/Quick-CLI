@@ -364,23 +364,11 @@ while ($true) {
                 $pIdx = if ($null -eq $ts) { -1 } else { $ts.providerIndex }
                 $mIdx = if ($null -eq $ts) { 0 } else { $ts.modelIndex }
 
-                if ($tName -like "*Antigravity*") {
-                    if ($null -eq $ts -or $ts.providerIndex -ne -1 -or $ts.modelIndex -ne 0) {
-                        if ($null -eq $ts) {
-                            $config.current.toolSettings | Add-Member -NotePropertyName $tName -NotePropertyValue ([PSCustomObject]@{ providerIndex = -1; modelIndex = 0 })
-                        } else {
-                            $config.current.toolSettings."$tName".providerIndex = -1
-                            $config.current.toolSettings."$tName".modelIndex = 0
-                        }
-                        Save-Config $config
-                        $config = Get-AppConfig
-                        $ts = $config.current.toolSettings."$tName"
-                    }
+                # Antigravity CLI 和 Kiro CLI 不支持第三方 API，强制使用官方模式
+                if ($tName -like "*Antigravity*" -or $tName -like "*Kiro*") {
                     $pIdx = -1
                     $mIdx = 0
                 }
-
-
 
                 $currP = $null
                 $currM = $null
@@ -397,7 +385,8 @@ while ($true) {
                 
                 $header = "$($UI.configHeader)`n$($UI.providerLabel): $($currP.name)`n$($UI.modelLabel): $($currM.name)"
                 $opts = $UI.launchOptions
-                if ($tName -like "*Antigravity*") {
+                # Antigravity CLI 和 Kiro CLI 仅支持官方模式，不显示切换供应商/模型选项
+                if ($tName -like "*Antigravity*" -or $tName -like "*Kiro*") {
                     $opts = @($UI.launchOptions[0])
                 }
                 $subChoice = Invoke-Menu $tName $opts $header
@@ -461,7 +450,28 @@ while ($true) {
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             agy
                         }
-                        else {
+                        elseif ($tName -like "*Kiro*") {
+                            # Kiro CLI 仅支持官方认证，不支持第三方 API
+                            # 自动检测 Kiro CLI 可执行路径（独立 CLI，非 Kiro IDE 桌面端）
+                            $kiroCmd = $null
+                            if (Get-Command kiro-cli -ErrorAction SilentlyContinue) {
+                                $kiroCmd = "kiro-cli"
+                            } else {
+                                # 尝试独立安装的 kiro-cli.exe 默认路径
+                                $kiroCliExe = Join-Path $env:LOCALAPPDATA "Kiro-Cli\kiro-cli.exe"
+                                if (Test-Path $kiroCliExe) { $kiroCmd = $kiroCliExe }
+                            }
+
+                            if ($kiroCmd) {
+                                Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
+                                & $kiroCmd
+                            } else {
+                                Write-Host "`nKiro CLI $($UI.notConfigured)! " -ForegroundColor Red -NoNewline
+                                Write-Host "https://kiro.dev/downloads/" -ForegroundColor Cyan
+                                Read-Host
+                            }
+                        }
+                        elseif ($tName -like "*Codex*") {
                             if ($currP.isOfficial) {
                                 codex
                             } else {

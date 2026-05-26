@@ -1,13 +1,13 @@
 # Quick-CLI 🚀
 
-**Quick-CLI** 是一个专为开发者设计的统一命令行管理脚本，旨在为 **Claude Code** 和 **Codex CLI** 提供一个优雅、高效且无闪烁的终端用户界面（TUI）。
+**Quick-CLI** 是一个专为开发者设计的统一命令行管理脚本，旨在为 **Claude Code**、**Codex CLI**、**Antigravity CLI** 和 **Kiro CLI** 提供一个优雅、高效且无闪烁的终端用户界面（TUI）。
 
 [简体中文](#quick-cli-) | [English](#quick-cli-en)
 
 
 ## ✨ 核心特性
 
-- 🛠 **统一管理**：在一个界面中无缝切换和启动 Claude Code 与 Codex CLI。
+- 🛠 **统一管理**：在一个界面中无缝切换和启动 Claude Code、Codex CLI、Antigravity CLI 与 Kiro CLI。
 - ⚡ **零闪烁 TUI**：基于 PowerShell 原子渲染技术，提供静止如水的菜单交互体验。
 - 🌍 **全平台支持**：完美适配 Windows、Linux 和 macOS。
 - 🌐 **多语言支持**：支持中英文一键切换。
@@ -64,12 +64,12 @@ curl -sSL https://raw.githubusercontent.com/Xiaode-AI/Quick-CLI/main/install.ps1
 
 # Quick-CLI (EN)
 
-**Quick-CLI** is a unified command-line management script designed for developers. It provides an elegant, high-efficiency, flicker-free Terminal User Interface (TUI) for **Claude Code** and **Codex CLI**.
+**Quick-CLI** is a unified command-line management script designed for developers. It provides an elegant, high-efficiency, flicker-free Terminal User Interface (TUI) for **Claude Code**, **Codex CLI**, **Antigravity CLI**, and **Kiro CLI**.
 
 
 ## ✨ Features
 
-- 🛠 **Unified Management**: Seamlessly switch between and launch Claude Code and Codex CLI in one interface.
+- 🛠 **Unified Management**: Seamlessly switch between and launch Claude Code, Codex CLI, Antigravity CLI, and Kiro CLI in one interface.
 - ⚡ **Zero-Flicker TUI**: Built with PowerShell atomic rendering technology for a smooth, stable menu experience.
 - 🌍 **Cross-Platform**: Optimized for Windows, macOS, and Linux.
 - 🌐 **Multi-Language Support**: Easily switch between English and Chinese.
