@@ -15,11 +15,12 @@ foreach ($dep in $dependencies) {
 }
 
 # 2. Add to PATH (Permanent - Windows Only)
-if ($IsWindows) {
+$isWin = $IsWindows -or ($env:OS -eq "Windows_NT")
+if ($isWin) {
     # Add the SCRIPTS folder to PATH, not the root
     $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
     if ($currentPath -notlike "*$PSScriptRoot*") {
-        $newPath = "$currentPath;$PSScriptRoot"
+        $newPath = if ([string]::IsNullOrEmpty($currentPath)) { $PSScriptRoot } else { "$currentPath;$PSScriptRoot" }
         [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
         Write-Host "[DONE] Added 'scripts' folder to your User PATH." -ForegroundColor Green
     } else {
@@ -35,7 +36,8 @@ $scriptPath = Join-Path $repoRoot "src\Script.ps1"
 $aliasCmd = "`nfunction qc { & '$scriptPath' }`nfunction quick { & '$scriptPath' }`nfunction quick-cli { & '$scriptPath' }"
 
 if (Test-Path $PROFILE) {
-    if ((Get-Content $PROFILE) -contains "function qc") {
+    $profileContent = Get-Content $PROFILE -Raw
+    if ($profileContent -match "function qc\s*\{") {
         Write-Host "[OK] Alias 'qc/quick' already exists in your profile." -ForegroundColor Gray
     } else {
         Add-Content $PROFILE $aliasCmd

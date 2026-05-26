@@ -3,7 +3,8 @@
 # Centered titles and aligned config details.
 
 # OS check for encoding
-if ($IsWindows) {
+$isWin = $IsWindows -or ($env:OS -eq "Windows_NT")
+if ($isWin) {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     chcp 65001 | Out-Null
 }

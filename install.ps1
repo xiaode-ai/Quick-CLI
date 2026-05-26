@@ -34,7 +34,7 @@ try {
 }
 
 # 3. Trigger Local Setup
-if (Test-Path (Join-Path $installDir "setup.ps1")) {
+if (Test-Path (Join-Path $installDir "scripts\setup.ps1")) {
     Set-Location $installDir
     .\scripts\setup.ps1
 }
