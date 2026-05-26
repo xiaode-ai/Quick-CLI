@@ -1,4 +1,4 @@
-﻿# Quick CLI Manager (Aesthetic Polished Version)
+# Quick CLI Manager (Aesthetic Polished Version)
 # Centered titles and aligned config details.
 # Centered titles and aligned config details.
 
@@ -155,24 +155,62 @@ function Show-ProviderMenu {
         $choice = Invoke-Menu $Title $list
         if ($choice -eq "ESC") { return }
 
-        if ($choice -eq ($list.Count - 3)) {
+        $providersCount = $config.providers.Count
+
+        if ($choice -lt $providersCount) {
+            $p = $config.providers[$choice]
+            while ($true) {
+                $pOpts = @(
+                    "$($UI.editNamePrefix)$($p.name)",
+                    "$($UI.editUrlPrefix)$($p.baseUrl)",
+                    "$($UI.editKeyPrefix)********"
+                )
+                $pChoice = Invoke-Menu "$($UI.editProviderTitle): $($p.name)" $pOpts
+                if ($pChoice -eq "ESC") { break }
+
+                switch ($pChoice) {
+                    0 {
+                        $newName = Read-StringWithCancel "$($UI.editProviderNamePrompt)"
+                        if ($null -ne $newName -and $newName.Trim() -ne "") {
+                            $p.name = $newName.Trim()
+                            Save-Config $config
+                        }
+                    }
+                    1 {
+                        $newUrl = Read-StringWithCancel "$($UI.editProviderUrlPrompt)"
+                        if ($null -ne $newUrl -and $newUrl.Trim() -ne "") {
+                            $p.baseUrl = $newUrl.Trim()
+                            Save-Config $config
+                        }
+                    }
+                    2 {
+                        $newKey = Read-StringWithCancel "$($UI.editProviderKeyPrompt)" -IsPassword
+                        if ($null -ne $newKey) {
+                            $p.apiKey = $newKey
+                            Save-Config $config
+                        }
+                    }
+                }
+            }
+        }
+        elseif ($choice -eq $providersCount) {
             $name = Read-StringWithCancel "Name: "
             if ($null -ne $name) {
                 $url = Read-StringWithCancel "Base URL: "
                 if ($null -ne $url) {
                     $key = Read-StringWithCancel "API Key: " -IsPassword
                     if ($null -ne $key) {
-                        $config.providers += @{ name = $name; baseUrl = $url; apiKey = $key; models = @(); disableBetas = $true; useAuthToken = $true }
+                        $config.providers += @{ name = $name; baseUrl = $url; apiKey = $key; models = @(); disableBetas = $false; useAuthToken = $true }
                         Save-Config $config
                     }
                 }
             }
         }
-        elseif ($choice -eq ($list.Count - 2)) {
-            $idxStr = Read-StringWithCancel "Delete Index (1-$($config.providers.Count)): "
+        elseif ($choice -eq ($providersCount + 1)) {
+            $idxStr = Read-StringWithCancel "Delete Index (1-$providersCount): "
             if ($idxStr -match "^\d+$") {
                 $idx = [int]$idxStr - 1
-                if ($idx -ge 0 -and $idx -lt $config.providers.Count) {
+                if ($idx -ge 0 -and $idx -lt $providersCount) {
                     $config.providers = $config.providers | Where-Object { $_.name -ne $config.providers[$idx].name }
                     Save-Config $config
                 }
@@ -216,7 +254,42 @@ function Show-ModelMenu {
         $choice = Invoke-Menu $Title $list
         if ($choice -eq "ESC") { return }
 
-        if ($choice -eq ($list.Count - 3)) { # Add Model
+        $modelsCount = $allModels.Count
+
+        if ($choice -lt $modelsCount) {
+            $target = $allModels[$choice]
+            $pIdx = $target.pIdx
+            $mIdx = $target.mIdx
+            $p = $config.providers[$pIdx]
+            $m = $p.models[$mIdx]
+            
+            while ($true) {
+                $mOpts = @(
+                    "$($UI.editNamePrefix)$($m.name)",
+                    "$($UI.editModelIdPrefix)$($m.id)"
+                )
+                $mChoice = Invoke-Menu "$($UI.editModelTitle): $($m.name)" $mOpts
+                if ($mChoice -eq "ESC") { break }
+
+                switch ($mChoice) {
+                    0 {
+                        $newName = Read-StringWithCancel "$($UI.editModelNamePrompt)"
+                        if ($null -ne $newName -and $newName.Trim() -ne "") {
+                            $config.providers[$pIdx].models[$mIdx].name = $newName.Trim()
+                            Save-Config $config
+                        }
+                    }
+                    1 {
+                        $newId = Read-StringWithCancel "$($UI.editModelIdPrompt)"
+                        if ($null -ne $newId -and $newId.Trim() -ne "") {
+                            $config.providers[$pIdx].models[$mIdx].id = $newId.Trim()
+                            Save-Config $config
+                        }
+                    }
+                }
+            }
+        }
+        elseif ($choice -eq $modelsCount) { # Add Model
             $pNames = @()
             foreach ($p in $config.providers) { $pNames += $p.name }
             $pChoice = Invoke-Menu $UI.selectProviderPrompt $pNames
@@ -233,7 +306,7 @@ function Show-ModelMenu {
                 }
             }
         }
-        elseif ($choice -eq ($list.Count - 2)) { # Delete Model
+        elseif ($choice -eq ($modelsCount + 1)) { # Delete Model
             if ($allModels.Count -eq 0) { continue }
             $totalCount = $allModels.Count
             $idxStr = Read-StringWithCancel "$($UI.deleteModelIndexPrompt) (1-$totalCount): "
@@ -263,7 +336,7 @@ while ($true) {
     $UI = Get-AppUI # Reload UI each loop to support language switching
     $config = Get-AppConfig
     if ($config.providers.Count -eq 0) {
-        $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = true; useAuthToken = false }
+        $config.providers += @{ name = "Default"; baseUrl = "https://api.openai.com/v1"; apiKey = ""; models = @(); disableBetas = false; useAuthToken = false }
         if (-not $config.current.language) { 
             $config.current.language = if ((Get-Culture).Name -like "zh-*") { "zh-cn" } else { "en-us" }
         }
@@ -291,10 +364,23 @@ while ($true) {
                 $pIdx = if ($null -eq $ts) { -1 } else { $ts.providerIndex }
                 $mIdx = if ($null -eq $ts) { 0 } else { $ts.modelIndex }
 
-                # Gemini 强制仅使用官方提供商
-                if ($tName -like "*Gemini*" -and $pIdx -ne -1) {
-                    $pIdx = -1; $mIdx = 0
+                if ($tName -like "*Antigravity*") {
+                    if ($null -eq $ts -or $ts.providerIndex -ne -1 -or $ts.modelIndex -ne 0) {
+                        if ($null -eq $ts) {
+                            $config.current.toolSettings | Add-Member -NotePropertyName $tName -NotePropertyValue ([PSCustomObject]@{ providerIndex = -1; modelIndex = 0 })
+                        } else {
+                            $config.current.toolSettings."$tName".providerIndex = -1
+                            $config.current.toolSettings."$tName".modelIndex = 0
+                        }
+                        Save-Config $config
+                        $config = Get-AppConfig
+                        $ts = $config.current.toolSettings."$tName"
+                    }
+                    $pIdx = -1
+                    $mIdx = 0
                 }
+
+
 
                 $currP = $null
                 $currM = $null
@@ -310,10 +396,14 @@ while ($true) {
                 }
                 
                 $header = "$($UI.configHeader)`n$($UI.providerLabel): $($currP.name)`n$($UI.modelLabel): $($currM.name)"
-                $subChoice = Invoke-Menu $tName $UI.launchOptions $header
+                $opts = $UI.launchOptions
+                if ($tName -like "*Antigravity*") {
+                    $opts = @($UI.launchOptions[0])
+                }
+                $subChoice = Invoke-Menu $tName $opts $header
                 
                 if ($subChoice -eq "ESC") { break }
-                $optText = $UI.launchOptions[$subChoice]
+                $optText = $opts[$subChoice]
 
                 switch ($subChoice) {
                     0 { # Run
@@ -322,31 +412,38 @@ while ($true) {
                         if ($tName -like "*Claude*") {
                             if ($currP.isOfficial) {
                                 $env:ANTHROPIC_BASE_URL = ""; $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_MODEL = ""
+                                $env:CLAUDE_CONFIG_DIR = ""
                             } else {
                                 # Claude Code 使用 OpenRouter 时不能带 /v1，自动剥离后缀
                                 $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
                                 $env:ANTHROPIC_BASE_URL = $cleanUrl; $env:ANTHROPIC_MODEL = $currM.id
                                 if ($currP.useAuthToken) { $env:ANTHROPIC_API_KEY = ""; $env:ANTHROPIC_AUTH_TOKEN = $currP.apiKey } else { $env:ANTHROPIC_API_KEY = $currP.apiKey; $env:ANTHROPIC_AUTH_TOKEN = "" }
+                                $claudeTmpHome = Join-Path $HOME ".claude_custom_api"
+                                if (-not (Test-Path $claudeTmpHome)) { New-Item -ItemType Directory -Path $claudeTmpHome -Force | Out-Null }
+                                $env:CLAUDE_CONFIG_DIR = $claudeTmpHome
                             }
                             $env:CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS = if ($currP.disableBetas) { "true" } else { "false" }
                             
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             claude
                         }
-                        elseif ($tName -like "*Gemini*") {
+                        elseif ($tName -like "*Antigravity*") {
                             if ($currP.isOfficial) {
-                                $env:GEMINI_API_KEY = ""; $env:GOOGLE_API_KEY = ""; $env:GEMINI_MODEL = ""; $env:GOOGLE_GEMINI_BASE_URL = ""
+                                $env:ANTIGRAVITY_API_KEY = ""; $env:GEMINI_API_KEY = ""; $env:GOOGLE_API_KEY = ""; $env:ANTIGRAVITY_MODEL = ""; $env:GEMINI_MODEL = ""; $env:GOOGLE_ANTIGRAVITY_BASE_URL = ""; $env:GOOGLE_GEMINI_BASE_URL = ""
                                 $env:GOOGLE_VERTEX_BASE_URL = ""; $env:CODE_ASSIST_ENDPOINT = ""; $env:GENERATIVE_AI_ENDPOINT = ""
-                                $env:GOOGLE_CLOUD_PROJECT = ""; $env:GOOGLE_CLOUD_PROJECT_ID = ""; $env:GEMINI_CLI_FORCE_AUTH_METHOD = ""
+                                $env:GOOGLE_CLOUD_PROJECT = ""; $env:GOOGLE_CLOUD_PROJECT_ID = ""; $env:ANTIGRAVITY_CLI_FORCE_AUTH_METHOD = ""; $env:GEMINI_CLI_FORCE_AUTH_METHOD = ""
                             } else {
-                                # 注入 Gemini 官方及常见第三方工具所需的环境变量
+                                # 注入 Antigravity & Gemini 官方及常见第三方工具所需的环境变量
+                                $env:ANTIGRAVITY_API_KEY = $currP.apiKey
                                 $env:GEMINI_API_KEY = $currP.apiKey
                                 $env:GOOGLE_API_KEY = $currP.apiKey
+                                $env:ANTIGRAVITY_MODEL = $currM.id
                                 $env:GEMINI_MODEL = $currM.id
                                 
                                 # 0-修改代理方案 (GCR): 自动重定向 API 请求到用户配置的 Base URL (如 OpenRouter)
                                 # 剥离最后的 /v1 或其他后缀，以符合各版本工具的 Base URL 规范
                                 $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
+                                $env:GOOGLE_ANTIGRAVITY_BASE_URL = $cleanUrl
                                 $env:GOOGLE_GEMINI_BASE_URL = $cleanUrl
                                 $env:GOOGLE_VERTEX_BASE_URL = $cleanUrl
                                 $env:CODE_ASSIST_ENDPOINT = $cleanUrl
@@ -356,12 +453,13 @@ while ($true) {
                                 # 强制跳过身份验证提示及项目 ID 检查 (GCR 优化仅限非官方渠道)
                                 $env:GOOGLE_CLOUD_PROJECT = "quick-cli-dummy"
                                 $env:GOOGLE_CLOUD_PROJECT_ID = "quick-cli-dummy"
+                                $env:ANTIGRAVITY_CLI_FORCE_AUTH_METHOD = "api-key"
                                 $env:GEMINI_CLI_FORCE_AUTH_METHOD = "api-key"
                                 $env:GOOGLE_GENAI_USE_VERTEXAI = "false"
                             }
                             
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
-                            gemini
+                            agy
                         }
                         else {
                             if ($currP.isOfficial) {
@@ -381,14 +479,11 @@ while ($true) {
                         if ($pIdx -eq -1) { $offName += $UI.currentTag }
                         $pList += $offName
 
-                        # Gemini 官方 CLI 仅支持官方提供商，过滤掉自定义提供商
-                        if ($tName -notlike "*Gemini*") {
-                            for ($i = 0; $i -lt $config.providers.Count; $i++) {
-                                $p = $config.providers[$i]
-                                $name = $p.name
-                                if ($i -eq $pIdx) { $name += $UI.currentTag }
-                                $pList += $name
-                            }
+                        for ($i = 0; $i -lt $config.providers.Count; $i++) {
+                            $p = $config.providers[$i]
+                            $name = $p.name
+                            if ($i -eq $pIdx) { $name += $UI.currentTag }
+                            $pList += $name
                         }
                         $pIdxS = Invoke-Menu $optText $pList
                         if ($pIdxS -eq "ESC") { continue }
@@ -459,4 +554,12 @@ while ($true) {
         }
     }
 }
+
+
+
+
+
+
+
+
 

@@ -1,11 +1,11 @@
-﻿# Quick-CLI Setup Assistant
+# Quick-CLI Setup Assistant
 # Sets up aliases and checks dependencies.
 # Located in: scripts/setup.ps1
 
 Write-Host "--- Quick-CLI Setup Assistant ---" -ForegroundColor Cyan
 
 # 1. Check Dependencies
-$dependencies = @("claude", "codex")
+$dependencies = @("claude", "codex", "agy")
 foreach ($dep in $dependencies) {
     if (Get-Command $dep -ErrorAction SilentlyContinue) {
         Write-Host "[OK] $dep is installed." -ForegroundColor Green

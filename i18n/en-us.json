@@ -34,5 +34,20 @@
   "selectLanguagePrompt": "Select Language",
   "langList": ["简体中文", "English"],
   "officialProvider": "Official",
-  "defaultModel": "Default"
+  "defaultModel": "Default",
+  "editProviderTitle": "Edit Provider",
+  "editNamePrefix": "Edit Name: ",
+  "editUrlPrefix": "Edit Base URL: ",
+  "editKeyPrefix": "Edit API Key: ",
+  "editBetaPrefix": "Beta Features (Claude): ",
+  "editAuthTokenPrefix": "Auth Token (Claude): ",
+  "enabledLabel": "ON",
+  "disabledLabel": "OFF",
+  "editProviderNamePrompt": "Enter new provider name: ",
+  "editProviderUrlPrompt": "Enter new Base URL: ",
+  "editProviderKeyPrompt": "Enter new API Key (hidden): ",
+  "editModelTitle": "Edit Model",
+  "editModelIdPrefix": "Edit ID: ",
+  "editModelNamePrompt": "Enter new model name: ",
+  "editModelIdPrompt": "Enter new model ID: "
 }

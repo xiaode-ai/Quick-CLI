@@ -34,5 +34,20 @@
   "selectLanguagePrompt": "选择语言",
   "langList": ["简体中文", "English"],
   "officialProvider": "官方",
-  "defaultModel": "默认"
+  "defaultModel": "默认",
+  "editProviderTitle": "修改提供商",
+  "editNamePrefix": "修改名称: ",
+  "editUrlPrefix": "修改 Base URL: ",
+  "editKeyPrefix": "修改 API Key: ",
+  "editBetaPrefix": "Beta功能 (Claude): ",
+  "editAuthTokenPrefix": "Auth Token (Claude): ",
+  "enabledLabel": "开启",
+  "disabledLabel": "关闭",
+  "editProviderNamePrompt": "请输入新的提供商名称: ",
+  "editProviderUrlPrompt": "请输入新的 Base URL: ",
+  "editProviderKeyPrompt": "请输入新的 API Key (隐式输入): ",
+  "editModelTitle": "修改模型",
+  "editModelIdPrefix": "修改 ID: ",
+  "editModelNamePrompt": "请输入新的模型名称: ",
+  "editModelIdPrompt": "请输入新的模型 ID: "
 }

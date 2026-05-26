@@ -17,7 +17,7 @@
   "tools": [
     "Claude Code",
     "Codex CLI",
-    "Gemini CLI"
+    "Antigravity CLI"
   ],
   "current": {
     "language": "zh-cn"
