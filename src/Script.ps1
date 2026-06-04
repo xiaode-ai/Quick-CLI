@@ -364,11 +364,6 @@ while ($true) {
                 $pIdx = if ($null -eq $ts) { -1 } else { $ts.providerIndex }
                 $mIdx = if ($null -eq $ts) { 0 } else { $ts.modelIndex }
 
-                # Antigravity CLI 和 Kiro CLI 不支持第三方 API，强制使用官方模式
-                if ($tName -like "*Antigravity*" -or $tName -like "*Kiro*") {
-                    $pIdx = -1
-                    $mIdx = 0
-                }
 
                 $currP = $null
                 $currM = $null
@@ -385,10 +380,6 @@ while ($true) {
                 
                 $header = "$($UI.configHeader)`n$($UI.providerLabel): $($currP.name)`n$($UI.modelLabel): $($currM.name)"
                 $opts = $UI.launchOptions
-                # Antigravity CLI 和 Kiro CLI 仅支持官方模式，不显示切换供应商/模型选项
-                if ($tName -like "*Antigravity*" -or $tName -like "*Kiro*") {
-                    $opts = @($UI.launchOptions[0])
-                }
                 $subChoice = Invoke-Menu $tName $opts $header
                 
                 if ($subChoice -eq "ESC") { break }
@@ -415,61 +406,6 @@ while ($true) {
                             
                             Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
                             claude
-                        }
-                        elseif ($tName -like "*Antigravity*") {
-                            if ($currP.isOfficial) {
-                                $env:ANTIGRAVITY_API_KEY = ""; $env:GEMINI_API_KEY = ""; $env:GOOGLE_API_KEY = ""; $env:ANTIGRAVITY_MODEL = ""; $env:GEMINI_MODEL = ""; $env:GOOGLE_ANTIGRAVITY_BASE_URL = ""; $env:GOOGLE_GEMINI_BASE_URL = ""
-                                $env:GOOGLE_VERTEX_BASE_URL = ""; $env:CODE_ASSIST_ENDPOINT = ""; $env:GENERATIVE_AI_ENDPOINT = ""
-                                $env:GOOGLE_CLOUD_PROJECT = ""; $env:GOOGLE_CLOUD_PROJECT_ID = ""; $env:ANTIGRAVITY_CLI_FORCE_AUTH_METHOD = ""; $env:GEMINI_CLI_FORCE_AUTH_METHOD = ""
-                            } else {
-                                # 注入 Antigravity & Gemini 官方及常见第三方工具所需的环境变量
-                                $env:ANTIGRAVITY_API_KEY = $currP.apiKey
-                                $env:GEMINI_API_KEY = $currP.apiKey
-                                $env:GOOGLE_API_KEY = $currP.apiKey
-                                $env:ANTIGRAVITY_MODEL = $currM.id
-                                $env:GEMINI_MODEL = $currM.id
-                                
-                                # 0-修改代理方案 (GCR): 自动重定向 API 请求到用户配置的 Base URL (如 OpenRouter)
-                                # 剥离最后的 /v1 或其他后缀，以符合各版本工具的 Base URL 规范
-                                $cleanUrl = $currP.baseUrl -replace "/v1/?$", ""
-                                $env:GOOGLE_ANTIGRAVITY_BASE_URL = $cleanUrl
-                                $env:GOOGLE_GEMINI_BASE_URL = $cleanUrl
-                                $env:GOOGLE_VERTEX_BASE_URL = $cleanUrl
-                                $env:CODE_ASSIST_ENDPOINT = $cleanUrl
-                                # 额外增加通用端点环境变量以增强兼容性
-                                $env:GENERATIVE_AI_ENDPOINT = $cleanUrl
-
-                                # 强制跳过身份验证提示及项目 ID 检查 (GCR 优化仅限非官方渠道)
-                                $env:GOOGLE_CLOUD_PROJECT = "quick-cli-dummy"
-                                $env:GOOGLE_CLOUD_PROJECT_ID = "quick-cli-dummy"
-                                $env:ANTIGRAVITY_CLI_FORCE_AUTH_METHOD = "api-key"
-                                $env:GEMINI_CLI_FORCE_AUTH_METHOD = "api-key"
-                                $env:GOOGLE_GENAI_USE_VERTEXAI = "false"
-                            }
-                            
-                            Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
-                            agy
-                        }
-                        elseif ($tName -like "*Kiro*") {
-                            # Kiro CLI 仅支持官方认证，不支持第三方 API
-                            # 自动检测 Kiro CLI 可执行路径（独立 CLI，非 Kiro IDE 桌面端）
-                            $kiroCmd = $null
-                            if (Get-Command kiro-cli -ErrorAction SilentlyContinue) {
-                                $kiroCmd = "kiro-cli"
-                            } else {
-                                # 尝试独立安装的 kiro-cli.exe 默认路径
-                                $kiroCliExe = Join-Path $env:LOCALAPPDATA "Kiro-Cli\kiro-cli.exe"
-                                if (Test-Path $kiroCliExe) { $kiroCmd = $kiroCliExe }
-                            }
-
-                            if ($kiroCmd) {
-                                Write-Host "`n$($UI.exitHintClaude)" -ForegroundColor Gray
-                                & $kiroCmd
-                            } else {
-                                Write-Host "`nKiro CLI $($UI.notConfigured)! " -ForegroundColor Red -NoNewline
-                                Write-Host "https://kiro.dev/downloads/" -ForegroundColor Cyan
-                                Read-Host
-                            }
                         }
                         elseif ($tName -like "*Codex*") {
                             if ($currP.isOfficial) {

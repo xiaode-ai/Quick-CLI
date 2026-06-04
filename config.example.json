@@ -16,9 +16,7 @@
   ],
   "tools": [
     "Claude Code",
-    "Codex CLI",
-    "Antigravity CLI",
-    "Kiro CLI"
+    "Codex CLI"
   ],
   "current": {
     "language": "zh-cn"

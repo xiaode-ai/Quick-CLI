@@ -5,7 +5,7 @@
 Write-Host "--- Quick-CLI Setup Assistant ---" -ForegroundColor Cyan
 
 # 1. Check Dependencies
-$dependencies = @("claude", "codex", "agy")
+$dependencies = @("claude", "codex")
 foreach ($dep in $dependencies) {
     if (Get-Command $dep -ErrorAction SilentlyContinue) {
         Write-Host "[OK] $dep is installed." -ForegroundColor Green
